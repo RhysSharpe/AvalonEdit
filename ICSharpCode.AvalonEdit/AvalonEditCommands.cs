@@ -23,7 +23,7 @@ namespace ICSharpCode.AvalonEdit
 	/// <summary>
 	/// Custom commands for AvalonEdit.
 	/// </summary>
-	public static class AvalonEditCommands
+	public static partial class AvalonEditCommands
 	{
 		/// <summary>
 		/// Toggles Overstrike mode

@@ -43,7 +43,7 @@ namespace ICSharpCode.AvalonEdit
 	/// Contains a scrollable TextArea.
 	/// </summary>
 	[Localizability(LocalizationCategory.Text), ContentProperty("Text")]
-	public class TextEditor : Control, ITextEditorComponent, IServiceProvider, IWeakEventListener
+	public partial class TextEditor : Control, ITextEditorComponent, IServiceProvider, IWeakEventListener
 	{
 		#region Constructors
 		static TextEditor()
@@ -74,6 +74,9 @@ namespace ICSharpCode.AvalonEdit
 
 			SetCurrentValue(OptionsProperty, textArea.Options);
 			SetCurrentValue(DocumentProperty, new TextDocument());
+			
+			// [DIGITALRUNE] Additional initializations.
+			Initialize();
 		}
 
 		#endregion
@@ -125,6 +128,8 @@ namespace ICSharpCode.AvalonEdit
 			if (DocumentChanged != null) {
 				DocumentChanged(this, e);
 			}
+			// [DIGITALRUNE].
+			OnDocumentChanged();
 		}
 
 		static void OnDocumentChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
@@ -173,6 +178,9 @@ namespace ICSharpCode.AvalonEdit
 		/// </summary>
 		protected virtual void OnOptionChanged(PropertyChangedEventArgs e)
 		{
+			// [DIGITALRUNE]
+			OnOptionsChanged();
+
 			if (OptionChanged != null) {
 				OptionChanged(this, e);
 			}
@@ -254,6 +262,10 @@ namespace ICSharpCode.AvalonEdit
 		/// </summary>
 		protected virtual void OnTextChanged(EventArgs e)
 		{
+			// [DIGITALRUNE] Invalidate foldings and update bracket highlighting.
+			InvalidateFolding();
+			UpdateBracketHighlighting();
+
 			if (TextChanged != null) {
 				TextChanged(this, e);
 			}

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -184,7 +185,13 @@ namespace ICSharpCode.AvalonEdit.Editing
 		static void OnEnter(object target, ExecutedRoutedEventArgs args)
 		{
 			TextArea textArea = GetTextArea(target);
-			if (textArea != null && textArea.IsKeyboardFocused) {
+			if (textArea != null && textArea.IsKeyboardFocused)
+			{
+				// [DIGITALRUNE] Enter MUST NOT be handled when another control has the focus.
+				// Note: OnEnter is called via CommandBinding with KeyGesture = Enter.
+				if (!textArea.IsKeyboardFocused)
+					return;
+
 				textArea.PerformTextInput("\n");
 				args.Handled = true;
 			}
@@ -278,10 +285,30 @@ namespace ICSharpCode.AvalonEdit.Editing
 		{
 			// HasSomethingSelected for delete command
 			TextArea textArea = GetTextArea(target);
-			if (textArea != null && textArea.Document != null) {
-				args.CanExecute = !textArea.Selection.IsEmpty;
+			if (textArea != null && textArea.Document != null)
+			{
+				args.CanExecute = CanDeleteSelection(textArea);
 				args.Handled = true;
 			}
+		}
+
+		// [DIGITALRUNE] FIX: Check for read-only documents/sections.
+		private static bool CanDeleteSelection(TextArea textArea)
+		{
+			Debug.Assert(textArea != null);
+
+			var selection = textArea.Selection;
+			if (selection.IsEmpty)
+				return false;
+
+			var readOnlySectionProvider = textArea.ReadOnlySectionProvider;
+			if (readOnlySectionProvider is ReadOnlySectionDocument)
+				return false;
+
+			if (readOnlySectionProvider is NoReadOnlySections)
+				return true;
+
+			return selection.Segments.SelectMany(segment => readOnlySectionProvider.GetDeletableSegments(segment)).Any();
 		}
 		#endregion
 
@@ -290,10 +317,37 @@ namespace ICSharpCode.AvalonEdit.Editing
 		{
 			// HasSomethingSelected for copy and cut commands
 			TextArea textArea = GetTextArea(target);
-			if (textArea != null && textArea.Document != null) {
-				args.CanExecute = textArea.Options.CutCopyWholeLine || !textArea.Selection.IsEmpty;
+			if (textArea != null && textArea.Document != null)
+			{
+				args.CanExecute = CanCutSelection(textArea);
 				args.Handled = true;
 			}
+		}
+
+		// [DIGITALRUNE] FIX: Check for read-only documents/sections.
+		private static bool CanCutSelection(TextArea textArea)
+		{
+			Debug.Assert(textArea != null);
+
+			var selection = textArea.Selection;
+			if (selection.IsEmpty && !textArea.Options.CutCopyWholeLine)
+				return false;
+
+			var readOnlySectionProvider = textArea.ReadOnlySectionProvider;
+			if (readOnlySectionProvider is ReadOnlySectionDocument)
+				return false;
+
+			if (readOnlySectionProvider is NoReadOnlySections)
+				return true;
+
+			if (selection.IsEmpty) {
+				Debug.Assert(textArea.Options.CutCopyWholeLine);
+				var documentLine = textArea.Document.GetLineByNumber(textArea.Caret.Line);
+				var segment = new SimpleSegment(documentLine.Offset, documentLine.TotalLength);
+				return readOnlySectionProvider.GetDeletableSegments(segment).Any();
+			}
+
+			return selection.Segments.SelectMany(segment => readOnlySectionProvider.GetDeletableSegments(segment)).Any();
 		}
 
 		static void OnCopy(object target, ExecutedRoutedEventArgs args)
@@ -522,6 +576,32 @@ namespace ICSharpCode.AvalonEdit.Editing
 		#endregion
 
 		#region Remove..Whitespace / Convert Tabs-Spaces
+		// [DIGITALRUNE] FIX: Check for read-only documents.
+		static void CanRemoveLeadingWhitespace(object target, CanExecuteRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			if (textArea != null && textArea.Document != null) {
+				args.CanExecute = CanRemoveLeadingWhitespace(textArea);
+				args.Handled = true;
+			}
+		}
+
+		private static bool CanRemoveLeadingWhitespace(TextArea textArea)
+		{
+			Debug.Assert(textArea != null);
+
+			var readOnlySectionProvider = textArea.ReadOnlySectionProvider;
+			if (readOnlySectionProvider is ReadOnlySectionDocument)
+				return false;
+
+			if (readOnlySectionProvider is NoReadOnlySections)
+				return true;
+
+			// This is a simplification. The correct solution would be to whether all lines are
+			// read-only using the TextArea.ReadOnlySectionProvider.
+			return true;
+		}
+
 		static void OnRemoveLeadingWhitespace(object target, ExecutedRoutedEventArgs args)
 		{
 			TransformSelectedLines(
@@ -530,12 +610,64 @@ namespace ICSharpCode.AvalonEdit.Editing
 				}, target, args, DefaultSegmentType.WholeDocument);
 		}
 
+		// [DIGITALRUNE] FIX: Check for read-only documents.
+		static void CanRemoveTrailingWhitespace(object target, CanExecuteRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			if (textArea != null && textArea.Document != null) {
+				args.CanExecute = CanRemoveTrailingWhitespace(textArea);
+				args.Handled = true;
+			}
+		}
+
+		private static bool CanRemoveTrailingWhitespace(TextArea textArea)
+		{
+			Debug.Assert(textArea != null);
+
+			var readOnlySectionProvider = textArea.ReadOnlySectionProvider;
+			if (readOnlySectionProvider is ReadOnlySectionDocument)
+				return false;
+
+			if (readOnlySectionProvider is NoReadOnlySections)
+				return true;
+
+			// This is a simplification. The correct solution would be to whether all lines are
+			// read-only using the TextArea.ReadOnlySectionProvider.
+			return true;
+		}
+
 		static void OnRemoveTrailingWhitespace(object target, ExecutedRoutedEventArgs args)
 		{
 			TransformSelectedLines(
 				delegate (TextArea textArea, DocumentLine line) {
 					textArea.Document.Remove(TextUtilities.GetTrailingWhitespace(textArea.Document, line));
 				}, target, args, DefaultSegmentType.WholeDocument);
+		}
+
+		// [DIGITALRUNE] FIX: Check for read-only documents.
+		static void CanEdit(object target, CanExecuteRoutedEventArgs args)
+		{
+			TextArea textArea = GetTextArea(target);
+			if (textArea != null && textArea.Document != null) {
+				args.CanExecute = CanEdit(textArea);
+				args.Handled = true;
+			}
+		}
+
+		private static bool CanEdit(TextArea textArea)
+		{
+			Debug.Assert(textArea != null);
+
+			var readOnlySectionProvider = textArea.ReadOnlySectionProvider;
+			if (readOnlySectionProvider is ReadOnlySectionDocument)
+				return false;
+
+			if (readOnlySectionProvider is NoReadOnlySections)
+				return true;
+
+			// This is a simplification. The correct solution would be to whether all lines are
+			// read-only using the TextArea.ReadOnlySectionProvider.
+			return true;
 		}
 
 		static void OnConvertTabsToSpaces(object target, ExecutedRoutedEventArgs args)
@@ -655,7 +787,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 						start = textArea.Document.GetLineByOffset(textArea.Selection.SurroundingSegment.Offset).LineNumber;
 						end = textArea.Document.GetLineByOffset(textArea.Selection.SurroundingSegment.EndOffset).LineNumber;
 					}
-					textArea.IndentationStrategy.IndentLines(textArea.Document, start, end);
+					textArea.IndentationStrategy.IndentLines(textArea, start, end);
 				}
 				textArea.Caret.BringCaretToView();
 				args.Handled = true;

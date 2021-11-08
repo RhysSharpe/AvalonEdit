@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -47,7 +48,7 @@ namespace ICSharpCode.AvalonEdit.Document
 	/// </summary>
 	/// <remarks><inheritdoc cref="TextSegment"/></remarks>
 	/// <see cref="TextSegment"/>
-	public sealed class TextSegmentCollection<T> : ICollection<T>, ISegmentTree, IWeakEventListener where T : TextSegment
+	public sealed class TextSegmentCollection<T> : ICollection<T>, ISegmentTree, IWeakEventListener, INotifyCollectionChanged where T : TextSegment
 	{
 		// Implementation: this is basically a mixture of an augmented interval tree
 		// and the TextAnchorTree.
@@ -225,6 +226,9 @@ namespace ICSharpCode.AvalonEdit.Document
 			if (item.ownerTree != null)
 				throw new ArgumentException("The segment is already added to a SegmentCollection.");
 			AddSegment(item);
+
+			// [DIGITALRUNE]
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
 		}
 
 		void ISegmentTree.Add(TextSegment s)
@@ -499,6 +503,10 @@ namespace ICSharpCode.AvalonEdit.Document
 			if (!Contains(item))
 				return false;
 			RemoveSegment(item);
+
+			// [DIGITALRUNE]
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
+
 			return true;
 		}
 
@@ -541,6 +549,9 @@ namespace ICSharpCode.AvalonEdit.Document
 				Disconnect(s, offset);
 			}
 			CheckProperties();
+
+			// [DIGITALRUNE]
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 		#endregion
 
@@ -975,6 +986,34 @@ namespace ICSharpCode.AvalonEdit.Document
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
 		{
 			return this.GetEnumerator();
+		}
+		#endregion
+
+
+		#region ----- [DIGITALRUNE] INotifyCollectionChanged -----
+
+		/// <summary>
+		/// Occurs when the collection changes.
+		/// </summary>
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+
+		/// <summary>
+		/// Raises the <see cref="CollectionChanged"/> event.
+		/// </summary>
+		/// <param name="eventArgs">
+		/// <see cref="NotifyCollectionChangedEventArgs"/> object that provides the arguments for the 
+		/// event.
+		/// </param>
+		/// <remarks>
+		/// <strong>Notes to Inheritors: </strong>When overriding <see cref="OnCollectionChanged"/> in a 
+		/// derived class, be sure to call the base class's <see cref="OnCollectionChanged"/> method so 
+		/// that registered delegates receive the event.
+		/// </remarks>
+		/*protected virtual*/
+		void OnCollectionChanged(NotifyCollectionChangedEventArgs eventArgs)
+		{
+			CollectionChanged?.Invoke(this, eventArgs);
 		}
 		#endregion
 	}

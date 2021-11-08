@@ -41,5 +41,11 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		public override TextWrapping TextWrapping { get { return textWrapping; } }
 		public override TextMarkerProperties TextMarkerProperties { get { return null; } }
 		public override double Indent { get { return indent; } }
+
+		// [DIGITALRUNE] Notes concerning line height.
+		// The line height is determined automatically (LineHeight = NaN).
+		// The effective line height is 
+		//   defaultTextRunProperties.Typeface.FontFamily.LineSpacing * defaultTextRunProperties.FontRenderingEmSize
+		// We could override the default line height or make it configurable.
 	}
 }

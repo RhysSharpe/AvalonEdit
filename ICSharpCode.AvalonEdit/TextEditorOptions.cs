@@ -26,7 +26,7 @@ namespace ICSharpCode.AvalonEdit
 	/// A container for the text editor options.
 	/// </summary>
 	[Serializable]
-	public class TextEditorOptions : INotifyPropertyChanged
+	public partial class TextEditorOptions : INotifyPropertyChanged
 	{
 		#region ctor
 		/// <summary>

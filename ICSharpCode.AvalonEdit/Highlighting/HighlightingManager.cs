@@ -33,7 +33,7 @@ namespace ICSharpCode.AvalonEdit.Highlighting
 	/// <remarks>
 	/// All memers on this class (including instance members) are thread-safe.
 	/// </remarks>
-	public class HighlightingManager : IHighlightingDefinitionReferenceResolver
+	public class HighlightingManager : IHighlightingService
 	{
 		sealed class DelayLoadedHighlightingDefinition : IHighlightingDefinition
 		{
@@ -210,15 +210,33 @@ namespace ICSharpCode.AvalonEdit.Highlighting
 			RegisterHighlighting(name, extensions, new DelayLoadedHighlightingDefinition(name, lazyLoadedHighlighting));
 		}
 
+
+		// [DIGITALRUNE] Original HighlightingManager uses singleton pattern, which is 
+		// problematic because it is not possible to replace the instance.
+		private static IHighlightingService _instance;
+
+		/// <summary>
+		/// Overrides the default highlighting manager. (See property <see cref="Instance"/>.)
+		/// </summary>
+		/// <param name="highlightingManager">The highlighting manager.</param>
+		public static void SetHighlightingManager(IHighlightingService highlightingManager)
+		{
+			_instance = highlightingManager;
+		}
+
 		/// <summary>
 		/// Gets the default HighlightingManager instance.
 		/// The default HighlightingManager comes with built-in highlightings.
 		/// </summary>
-		public static HighlightingManager Instance {
+		public static IHighlightingService Instance {
 			get {
-				return DefaultHighlightingManager.Instance;
+				if (_instance == null)
+					_instance = DefaultHighlightingManager.Instance;
+
+				return _instance;
 			}
 		}
+
 
 		internal sealed class DefaultHighlightingManager : HighlightingManager
 		{

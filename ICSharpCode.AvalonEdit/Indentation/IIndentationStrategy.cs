@@ -17,6 +17,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Editing;
 
 namespace ICSharpCode.AvalonEdit.Indentation
 {
@@ -25,15 +26,18 @@ namespace ICSharpCode.AvalonEdit.Indentation
 	/// </summary>
 	public interface IIndentationStrategy
 	{
+		// [DIGITALRUNE] The indentation strategy is called as part of another operation.
+		// It is not necessary to open and close a new undo group!
+
 		/// <summary>
 		/// Sets the indentation for the specified line.
 		/// Usually this is constructed from the indentation of the previous line.
 		/// </summary>
-		void IndentLine(TextDocument document, DocumentLine line);
+		void IndentLine(TextArea textArea, DocumentLine line);  // [DIGITALRUNE] Pass TextArea instead of TextDocument as parameter.
 
 		/// <summary>
 		/// Reindents a set of lines.
 		/// </summary>
-		void IndentLines(TextDocument document, int beginLine, int endLine);
+		void IndentLines(TextArea textArea, int beginLine, int endLine);
 	}
 }

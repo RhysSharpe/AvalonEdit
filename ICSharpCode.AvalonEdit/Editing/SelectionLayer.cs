@@ -63,6 +63,9 @@ namespace ICSharpCode.AvalonEdit.Editing
 			}
 			Geometry geometry = geoBuilder.CreateGeometry();
 			if (geometry != null) {
+				// [DIGITALRUNE] Reduce opacity if TextEditor isn't active.
+				Opacity = textArea.IsKeyboardFocusWithin ? 1.0 : 0.5;
+
 				drawingContext.DrawGeometry(textArea.SelectionBrush, selectionBorder, geometry);
 			}
 		}

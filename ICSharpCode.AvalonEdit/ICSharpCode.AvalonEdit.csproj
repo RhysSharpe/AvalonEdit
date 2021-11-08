@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net5.0-windows;netcoreapp3.1;net40;net45</TargetFrameworks>
+    <TargetFrameworks>net5.0-windows;netcoreapp3.1;</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <DefineConstants>TRACE</DefineConstants>
@@ -62,13 +62,18 @@
     <Resource Include="themes\RightArrow.cur" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Indentation\CSharp\**" />
+    <EmbeddedResource Remove="Indentation\CSharp\**" />
     <None Remove="Highlighting\Resources\*" />
+    <None Remove="Indentation\CSharp\**" />
     <EmbeddedResource Include="Highlighting\Resources\*" />
+    <Page Remove="Indentation\CSharp\**" />
     <EmbeddedResource Remove="Highlighting\Resources\Resources.cs" />
     <Resource Include="Highlighting\Resources\Resources.cs" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
   </ItemGroup>
 </Project>

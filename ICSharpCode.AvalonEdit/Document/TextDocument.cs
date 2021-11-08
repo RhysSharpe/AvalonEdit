@@ -37,7 +37,7 @@ namespace ICSharpCode.AvalonEdit.Document
 	/// <inheritdoc cref="VerifyAccess"/>
 	/// <para>However, there is a single method that is thread-safe: <see cref="CreateSnapshot()"/> (and its overloads).</para>
 	/// </remarks>
-	public sealed class TextDocument : IDocument, INotifyPropertyChanged
+	public class TextDocument : IDocument, INotifyPropertyChanged  // [DIGITALRUNE] TextDocument should not be sealed.
 	{
 		#region Thread ownership
 		readonly object lockObject = new object();
@@ -517,7 +517,15 @@ namespace ICSharpCode.AvalonEdit.Document
 			}
 		}
 
-		void OnPropertyChanged(string propertyName)
+		/// <summary>
+		/// Raises the <see cref="PropertyChanged"/> event.
+		/// </summary>
+		/// <remarks>
+		/// <strong>Notes to Inheritors:</strong> When overriding <see cref="OnPropertyChanged"/> 
+		/// in a derived class, be sure to call the base class's <see cref="OnPropertyChanged"/> 
+		/// method so that registered delegates receive the event.
+		/// </remarks>
+		protected virtual void OnPropertyChanged(string propertyName)  // [DIGITALRUNE] OnPropertyChanged should be protected virtual.
 		{
 			if (PropertyChanged != null)
 				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
@@ -869,10 +877,27 @@ namespace ICSharpCode.AvalonEdit.Document
 
 			// fire DocumentChanged event
 			if (Changed != null)
-				Changed(this, args);
+				OnChanged(args);                                                  // [DIGITALRUNE] Use protected virtual method to raise Changed event.
 			if (textChanged != null)
 				textChanged(this, args);
 		}
+
+		/// <summary>
+		/// Raises the <see cref="Changed"/> event.
+		/// </summary>
+		/// <remarks>
+		/// <strong>Notes to Inheritors:</strong> When overriding <see cref="OnChanged"/> in a derived 
+		/// class, be sure to call the base class's <see cref="OnChanged"/> method so that registered 
+		/// delegates receive the event.
+		/// </remarks>
+		protected virtual void OnChanged(DocumentChangeEventArgs eventArgs) // [DIGITALRUNE] Use protected virtual method to raise Changed event.
+		{
+			var handler = Changed;
+
+			if (handler != null)
+				handler(this, eventArgs);
+		}
+
 		#endregion
 
 		#region GetLineBy...

@@ -33,7 +33,7 @@ namespace ICSharpCode.AvalonEdit.Sample
 			this.Text = text;
 		}
 		
-		public System.Windows.Media.ImageSource Image {
+		public object Image {
 			get { return null; }
 		}
 		
@@ -49,7 +49,7 @@ namespace ICSharpCode.AvalonEdit.Sample
 		}
 		
 		public double Priority { get { return 0; } }
-		
+
 		public void Complete(TextArea textArea, ISegment completionSegment, EventArgs insertionRequestEventArgs)
 		{
 			textArea.Document.Replace(completionSegment, this.Text);

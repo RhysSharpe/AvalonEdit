@@ -813,6 +813,9 @@ namespace ICSharpCode.AvalonEdit.Editing
 			// First activate IME, then show caret
 			ime.OnGotKeyboardFocus(e);
 			caret.Show();
+
+			// [DIGITALRUNE] Redraw selections.
+			TextView.InvalidateLayer(KnownLayer.Selection);
 		}
 
 		/// <inheritdoc/>
@@ -821,6 +824,9 @@ namespace ICSharpCode.AvalonEdit.Editing
 			base.OnLostKeyboardFocus(e);
 			caret.Hide();
 			ime.OnLostKeyboardFocus(e);
+
+			// [DIGITALRUNE] Redraw selections.
+			TextView.InvalidateLayer(KnownLayer.Selection);
 		}
 		#endregion
 
@@ -930,7 +936,7 @@ namespace ICSharpCode.AvalonEdit.Editing
 					ISegment[] deletable = GetDeletableSegments(line);
 					if (deletable.Length == 1 && deletable[0].Offset == line.Offset && deletable[0].Length == line.Length) {
 						// use indentation strategy only if the line is not read-only
-						this.IndentationStrategy.IndentLine(this.Document, line);
+						this.IndentationStrategy.IndentLine(this, line);
 					}
 				}
 			}
@@ -1022,6 +1028,32 @@ namespace ICSharpCode.AvalonEdit.Editing
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
+			
+			// [DIGITALRUNE] Scroll up/down by one line with Ctrl-Up/Down.
+			if (!e.Handled && Keyboard.Modifiers == ModifierKeys.Control) {
+				if (e.Key == Key.Up) {
+					scrollInfo.LineUp();
+
+					// Keep caret within the visible area.
+					if (TextView.VerticalOffset + TextView.ActualHeight - TextView.DefaultLineHeight < TextView.GetVisualTopByDocumentLine(Caret.Line)) {
+						ClearSelection();
+						CaretNavigationCommandHandler.MoveCaret(this, CaretMovementType.LineUp);
+					}
+
+					e.Handled = true;
+				} else if (e.Key == Key.Down) {
+					scrollInfo.LineDown();
+
+					// Keep caret within the visible area.
+					if (TextView.VerticalOffset > TextView.GetVisualTopByDocumentLine(Caret.Line)) {
+						ClearSelection();
+						CaretNavigationCommandHandler.MoveCaret(this, CaretMovementType.LineDown);
+					}
+
+					e.Handled = true;
+				}
+			}
+
 			TextView.InvalidateCursorIfMouseWithinTextView();
 		}
 
@@ -1128,6 +1160,11 @@ namespace ICSharpCode.AvalonEdit.Editing
 
 		internal void OnTextCopied(TextEventArgs e)
 		{
+			// [DIGITALRUNE] Add text to clipboard ring.
+			ClipboardRing.Add(e.Text);
+
+			if (TextCopied != null)
+				TextCopied(this, e);
 			if (TextCopied != null)
 				TextCopied(this, e);
 		}

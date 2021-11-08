@@ -52,6 +52,12 @@ namespace ICSharpCode.AvalonEdit.Snippets
 				if (selection != null)
 					textArea.Document.Remove(insertionPosition, selection.EndOffset - insertionPosition);
 				Insert(context);
+				
+				// [DIGITALRUNE] Format inserted lines.
+				int beginLine = textArea.Document.GetLineByOffset(context.StartPosition).LineNumber;
+				int endLine = textArea.Document.GetLineByOffset(context.InsertionPosition).LineNumber;
+				textArea.IndentationStrategy?.IndentLines(textArea, beginLine, endLine);
+
 				context.RaiseInsertionCompleted(EventArgs.Empty);
 			}
 		}

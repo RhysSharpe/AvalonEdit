@@ -47,7 +47,7 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		}
 
 		public KnownLayer Layer {
-			get { return KnownLayer.Background; }
+			get { return KnownLayer.Selection; }  // [DIGITALRUNE] Column ruler should be in front of CurrentLineHighlight.
 		}
 
 		public void SetRuler(int column, Pen pen)

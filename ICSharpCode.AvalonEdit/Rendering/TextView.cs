@@ -68,8 +68,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
 			elementGenerators = new ObserveAddRemoveCollection<VisualLineElementGenerator>(ElementGenerator_Added, ElementGenerator_Removed);
 			lineTransformers = new ObserveAddRemoveCollection<IVisualLineTransformer>(LineTransformer_Added, LineTransformer_Removed);
 			backgroundRenderers = new ObserveAddRemoveCollection<IBackgroundRenderer>(BackgroundRenderer_Added, BackgroundRenderer_Removed);
+			currentLineHighlighRenderer = new CurrentLineHighlightRenderer(this); // [DIGITALRUNE] Render current line highlight before column ruler.
 			columnRulerRenderer = new ColumnRulerRenderer(this);
-			currentLineHighlighRenderer = new CurrentLineHighlightRenderer(this);
 			this.Options = new TextEditorOptions();
 
 			Debug.Assert(singleCharacterElementGenerator != null); // assert that the option change created the builtin element generators
@@ -973,7 +973,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
 			TextRunProperties globalTextRunProperties = CreateGlobalTextRunProperties();
 			VisualLineTextParagraphProperties paragraphProperties = CreateParagraphProperties(globalTextRunProperties);
 
-			Debug.WriteLine("Measure availableSize=" + availableSize + ", scrollOffset=" + scrollOffset);
+			//Debug.WriteLine("Measure availableSize=" + availableSize + ", scrollOffset=" + scrollOffset);    // [DIGITALRUNE] No debug output.
+
 			var firstLineInView = heightTree.GetLineByVisualPosition(scrollOffset.Y);
 
 			// number of pixels clipped from the first visual line(s)
@@ -2036,7 +2037,7 @@ namespace ICSharpCode.AvalonEdit.Rendering
 				InvalidateDefaultTextMetrics();
 				Redraw();
 			}
-			if (e.Property == ColumnRulerPenProperty) {
+			if (e.Property == ColumnRulerPenProperty && Options.ShowColumnRuler) {      // [DIGITALRUNE] Added second condition, otherwise it always turns the ruler back on.
 				columnRulerRenderer.SetRuler(this.Options.ColumnRulerPosition, this.ColumnRulerPen);
 			}
 			if (e.Property == CurrentLineBorderProperty) {

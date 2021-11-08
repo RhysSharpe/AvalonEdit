@@ -97,7 +97,7 @@ namespace ICSharpCode.AvalonEdit.CodeCompletion
 	/// <summary>
 	/// TemplateSelector for InsightWindow to replace plain string content by a TextBlock with TextWrapping.
 	/// </summary>
-	internal sealed class InsightWindowTemplateSelector : DataTemplateSelector
+	public sealed class InsightWindowTemplateSelector : DataTemplateSelector    // [DIGITALRUNE] Needs to be public. (Used in theme.)
 	{
 		public override DataTemplate SelectTemplate(object item, DependencyObject container)
 		{

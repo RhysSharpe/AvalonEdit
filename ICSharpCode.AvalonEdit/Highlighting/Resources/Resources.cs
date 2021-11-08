@@ -53,13 +53,22 @@ namespace ICSharpCode.AvalonEdit.Highlighting
 			hlm.RegisterHighlighting("TeX", new[] { ".tex" }, "Tex-Mode.xshd");
 			hlm.RegisterHighlighting("TSQL", new[] { ".sql" }, "TSQL-Mode.xshd");
 			hlm.RegisterHighlighting("VB", new[] { ".vb" }, "VB-Mode.xshd");
-			hlm.RegisterHighlighting("XML", (".xml;.xsl;.xslt;.xsd;.manifest;.config;.addin;" +
-											 ".xshd;.wxs;.wxi;.wxl;.proj;.csproj;.vbproj;.ilproj;" +
-											 ".booproj;.build;.xfrm;.targets;.xaml;.xpt;" +
-											 ".xft;.map;.wsdl;.disco;.ps1xml;.nuspec").Split(';'),
+			hlm.RegisterHighlighting("XML",
+									 // [DIGITALRUNE] Additional extensions added.
+									 new[] { ".xml", ".xsl", ".xslt", ".xsd", ".manifest", ".config",
+											 ".addin", ".xshd", ".wxs", ".wxi", ".wxl", ".proj", ".csproj",
+											 ".vbproj", ".ilproj", ".booproj", ".build", ".xfrm", ".targets",
+											 ".xaml", ".xpt", ".xft", ".map", ".wsdl", ".disco", ".ps1xml",
+											 ".nuspec", ".rdl", ".snippet", ".aml", ".shfbproj"
+										   },
 									 "XML-Mode.xshd");
 			hlm.RegisterHighlighting("MarkDown", new[] { ".md" }, "MarkDown-Mode.xshd");
 			hlm.RegisterHighlighting("MarkDownWithFontSize", new[] { ".md" }, "MarkDownWithFontSize-Mode.xshd");
+
+			// [DIGITALRUNE] Additional highlighting definitions.
+			hlm.RegisterHighlighting("Cg", new[] { ".cg", ".cgh", ".cgfx", }, "Cg-Mode.xshd");
+			hlm.RegisterHighlighting("HLSL", new[] { ".fx", ".fxh", ".hlsl", }, "HLSL-Mode.xshd");
+
 			hlm.RegisterHighlighting("Json", new[] { ".json" }, "Json.xshd");
 		}
 	}

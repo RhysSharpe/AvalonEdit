@@ -16,6 +16,9 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 namespace ICSharpCode.AvalonEdit.Highlighting
 {
 	/// <summary>
@@ -27,5 +30,30 @@ namespace ICSharpCode.AvalonEdit.Highlighting
 		/// Gets the highlighting definition by name, or null if it is not found.
 		/// </summary>
 		IHighlightingDefinition GetDefinition(string name);
+	}
+
+
+	// [DIGITALRUNE] Interface IHightlightingService added for IoC.
+
+	/// <summary>
+	/// Provides a list of syntax highlighting definitions.
+	/// </summary>
+	public interface IHighlightingService : IHighlightingDefinitionReferenceResolver
+	{
+		/// <summary>
+		/// Gets a read-only copy of all registered highlighting definitions.
+		/// </summary>
+		/// <value>A read-only copy of all registered highlighting definitions.</value>
+		ReadOnlyCollection<IHighlightingDefinition> HighlightingDefinitions { get; }
+
+		/// <summary>
+		/// Gets the definition by file extension.
+		/// </summary>
+		/// <param name="extension">The file extension.</param>
+		/// <returns>
+		/// The definition for the given file extension. Returns <see langword="null"/> if no matching
+		/// definition was found.
+		/// </returns>
+		IHighlightingDefinition GetDefinitionByExtension(string extension);
 	}
 }

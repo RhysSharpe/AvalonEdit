@@ -52,9 +52,9 @@ namespace ICSharpCode.AvalonEdit.Sample
 				}
 			}
 			// and register it in the HighlightingManager
-			HighlightingManager.Instance.RegisterHighlighting("Custom Highlighting", new string[] { ".cool" }, customHighlighting);
-			
-			
+			//HighlightingManager.Instance.RegisterHighlighting("Custom Highlighting", new string[] { ".cool" }, customHighlighting);
+
+
 			InitializeComponent();
 
 			this.SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
@@ -171,7 +171,7 @@ namespace ICSharpCode.AvalonEdit.Sample
 					case "C++":
 					case "PHP":
 					case "Java":
-						textEditor.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(textEditor.Options);
+						textEditor.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharpIndentationStrategy();
 						foldingStrategy = new BraceFoldingStrategy();
 						break;
 					default:

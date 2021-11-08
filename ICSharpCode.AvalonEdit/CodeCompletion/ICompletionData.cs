@@ -36,7 +36,7 @@ namespace ICSharpCode.AvalonEdit.CodeCompletion
 		/// <summary>
 		/// Gets the image.
 		/// </summary>
-		ImageSource Image { get; }
+		object Image { get; }   // [DIGITALRUNE] ImageSource or MultiColorGlyph.
 
 		/// <summary>
 		/// Gets the text. This property is used to filter the list of visible elements.

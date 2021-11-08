@@ -57,6 +57,11 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		public bool AlignToWholePixels { get; set; }
 
 		/// <summary>
+		/// Gets/Sets whether to align the geometry to the middle of pixels.
+		/// </summary>
+		public bool AlignToMiddleOfPixels { get; set; } // [DIGITALRUNE?]
+
+		/// <summary>
 		/// Gets/sets the border thickness.
 		/// 
 		/// This property only has an effect if <c>AlignToWholePixels</c> is enabled.
@@ -112,6 +117,11 @@ namespace ICSharpCode.AvalonEdit.Rendering
 							 PixelSnapHelpers.Round(r.Right + halfBorder, pixelSize.Width) - halfBorder,
 							 PixelSnapHelpers.Round(r.Bottom + halfBorder, pixelSize.Height) - halfBorder);
 				//Debug.WriteLine(r.ToString() + " -> " + new Rect(lastLeft, lastTop, lastRight-lastLeft, lastBottom-lastTop).ToString());
+			} else if (AlignToMiddleOfPixels) { // [DIGITALRUNE?]
+				AddRectangle(PixelSnapHelpers.PixelAlign(r.Left, pixelSize.Width),
+							 PixelSnapHelpers.PixelAlign(r.Top + 1, pixelSize.Height),
+							 PixelSnapHelpers.PixelAlign(r.Right, pixelSize.Width),
+							 PixelSnapHelpers.PixelAlign(r.Bottom + 1, pixelSize.Height));
 			} else {
 				AddRectangle(r.Left, r.Top, r.Right, r.Bottom);
 			}

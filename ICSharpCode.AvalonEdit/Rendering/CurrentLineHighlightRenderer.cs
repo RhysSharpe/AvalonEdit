@@ -29,8 +29,8 @@ namespace ICSharpCode.AvalonEdit.Rendering
 		int line;
 		TextView textView;
 
-		public static readonly Color DefaultBackground = Color.FromArgb(22, 20, 220, 224);
-		public static readonly Color DefaultBorder = Color.FromArgb(52, 0, 255, 110);
+		public static readonly Color DefaultBackground = Colors.LightYellow /* Color.FromArgb(22, 20, 220, 224) */;  // [DIGITALRUNE]
+		public static readonly Color DefaultBorder = Colors.LightYellow /* Color.FromArgb(52, 0, 255, 110) */;
 
 		#endregion
 
